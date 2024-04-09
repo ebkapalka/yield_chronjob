@@ -1,6 +1,25 @@
 import requests
 
 
+def check_file_exists(server_url: str, path: str, username: str,
+                      password: str, destination_name: str, **args) -> bool:
+    """
+    Save a file to a WebDAV server
+    :param server_url: url of the server
+    :param path: path to the destination folder
+    :param username: username
+    :param password: password
+    :param destination_name: destination file name
+    :return: None
+    """
+    file_url = f"{server_url.rstrip('/')}/{path.rstrip('/')}/{destination_name}"
+    head_response = requests.head(file_url, auth=(username, password))
+    if head_response.status_code == 200:
+        # case when file already exists
+        return True
+    return False
+
+
 def save_file_to_webdav(server_url: str, path: str, username: str, password: str,
                         destination_name: str, destination_content: bytes) -> None:
     """
