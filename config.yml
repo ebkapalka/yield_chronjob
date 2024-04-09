@@ -1,10 +1,11 @@
 source:
   sftp_directory: "/users/ekapalka/jobsub/Tapeload/"
-  service: "CopyYieldToKnox"
+  service: "RetrieveYieldFile"
   hostname: "jobsub-prod.msu.montana.edu"
   port: 22
   username: "ekapalka"
 destination:
   server_url: "https://knox.montana.edu/AdmissionsOffice"
+  service: "SaveYieldFile"
   folder_path: "Data Loads/Yield Files"
   username: "n18p538@msu.montana.edu"
