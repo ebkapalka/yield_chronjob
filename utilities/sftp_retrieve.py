@@ -42,25 +42,21 @@ def get_newest_yield(sftp_client: SFTPClient, remote_directory: str) -> str:
         return ''
 
 
-def download_file(sftp_client: SFTPClient, remote_directory: str,
-                  remote_filename: str, local_directory: str):
+def download_file_object(sftp_client: SFTPClient, remote_directory: str,
+                         remote_filename: str) -> bytes | None:
     """
     Download the newest yield file from the remote directory to the local directory,
     if it doesn't already exist locally.
     :param sftp_client: SFTPClient object
     :param remote_directory: remote directory to download files from
     :param remote_filename: remote filename to download
-    :param local_directory: local directory to download files to
-    :return:
+    :return: bytes of the file content
     """
     remote_filepath = os.path.join(remote_directory, remote_filename)
-    local_filepath = os.path.join(local_directory, remote_filename)
-    if not os.path.exists(local_filepath):
-        try:
-            sftp_client.get(remote_filepath, local_filepath)
-            print(f"Downloaded {remote_filename} to {local_filepath}")
-        except Exception as e:
-            print(f"Failed to download {remote_filename}: {e}")
-    else:
-        print(f"File {remote_filename} already exists at "
-              f"{local_filepath}. Skipping download.")
+    try:
+        with sftp_client.open(remote_filepath, "rb") as remote_file:
+            file_content = remote_file.read()
+            print(f"Downloaded {remote_filename} successfully.")
+            return file_content
+    except Exception as e:
+        print(f"Failed to download {remote_filename}: {e}")
