@@ -53,6 +53,7 @@ def download_file_object(sftp_client: SFTPClient, remote_directory: str,
     :return: bytes of the file content
     """
     remote_filepath = os.path.join(remote_directory, remote_filename)
+    print(remote_filepath)
     try:
         with sftp_client.open(remote_filepath, "rb") as remote_file:
             file_content = remote_file.read()
@@ -60,3 +61,40 @@ def download_file_object(sftp_client: SFTPClient, remote_directory: str,
             return file_content
     except Exception as e:
         print(f"Failed to download {remote_filename}: {e}")
+
+
+def download_file_object_pieces(sftp_client: SFTPClient, remote_directory: str,
+                                remote_filename: str) -> bytes | None:
+    """
+    Download the file from the remote directory and return its content as bytes.
+    This version reads the file in chunks and prints progress.
+    :param sftp_client: SFTPClient object
+    :param remote_directory: remote directory to download files from
+    :param remote_filename: remote filename to download
+    :return: bytes of the file content
+    """
+    # TODO: this and download_file will be
+    #  merged into one function that chooses
+    #  which based on file size
+    remote_filepath = os.path.join(remote_directory, remote_filename)
+    try:
+        with sftp_client.open(remote_filepath, "rb") as remote_file:
+            file_size = sftp_client.stat(remote_filepath).st_size
+            print(f"Downloading {remote_filename} ({file_size} bytes)...")
+
+            file_content = bytearray()
+            total_read = 0
+            chunk_size = 65536  # 64 KiB
+            while True:
+                chunk = remote_file.read(chunk_size)
+                if not chunk:
+                    break
+                file_content.extend(chunk)
+                total_read += len(chunk)
+                print(f"\r{total_read} of {file_size} bytes downloaded", end='')
+
+            print(f"\nDownloaded {remote_filename} successfully.")
+            return bytes(file_content)
+    except Exception as e:
+        print(f"Failed to download {remote_filename}: {e}")
+        return None
