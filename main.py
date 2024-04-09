@@ -1,8 +1,10 @@
 from utilities.sftp_retrieve import (create_sftp_client, get_newest_yield,
-                                     download_file_object)
+                                     download_file_object, download_file_object_pieces)
 from utilities.credentials import retrieve_credentials
 
 import yaml
+
+from utilities.webdav_save import save_file_to_webdav
 
 
 def download_file(config: dict) -> tuple[str, bytes]:
@@ -22,7 +24,7 @@ def download_file(config: dict) -> tuple[str, bytes]:
     sftp = create_sftp_client(**sftp_config)
     newest_file_name = get_newest_yield(
         sftp, config["source"]["sftp_directory"])
-    newest_file_content = download_file_object(
+    newest_file_content = download_file_object_pieces(
         sftp, config["source"]["sftp_directory"], newest_file_name)
     sftp.close()
     return newest_file_name, newest_file_content
@@ -42,14 +44,15 @@ def save_file(config: dict, file_name: str, file_content: bytes) -> None:
         "username": config["destination"]["username"],
         "password": retrieve_credentials(
             config["destination"]["service"],
-            config["destination"]["username"]),
+            config["destination"]["username"])[1],
         "destination_name": file_name,
         "destination_content": file_content
     }
+    save_file_to_webdav(**webdav_config)
 
 
 if __name__ == '__main__':
     with open("config.yml", "r") as file:
         cfg = yaml.safe_load(file)
     n, c = download_file(cfg)
-    print(n)
+    save_file(cfg, n, c)
