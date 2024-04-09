@@ -1,0 +1,11 @@
+source:
+  sftp_directory: "/users/username/jobsub/Tapeload/"
+  service: "RetrieveYieldFile"
+  hostname: "jobsub-prod.xsu.state.edu"
+  port: 22
+  username: "username"
+destination:
+  server_url: "https://knox.state.edu/AdmissionsOffice"
+  service: "SaveYieldFile"
+  folder_path: "Data Loads/Yield Files"
+  username: "netid@xsu.state.edu"
