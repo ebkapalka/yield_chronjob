@@ -1,7 +1,7 @@
 from utilities.sftp_retrieve import (create_sftp_client, get_newest_file_name,
                                      download_file_object)
 from utilities.webdav_save import save_file_to_webdav, check_file_exists
-from utilities.credentials import retrieve_credentials
+from utilities.credentials_environ import retrieve_credentials
 
 import yaml
 
